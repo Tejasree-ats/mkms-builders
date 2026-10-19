@@ -89,8 +89,8 @@ export default function Navbar({ onOpenContact }) {
         >
           <div 
             style={{
-              width: '38px',
-              height: '38px',
+              width: '36px',
+              height: '36px',
               border: '1px solid var(--gold-primary)',
               borderRadius: '2px',
               display: 'flex',
@@ -101,7 +101,7 @@ export default function Navbar({ onOpenContact }) {
               flexShrink: 0
             }}
           >
-            <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', fontWeight: '700', color: '#e2b170' }}>
+            <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', fontWeight: '700', color: '#e2b170' }}>
               M
             </span>
             <span 
@@ -116,10 +116,11 @@ export default function Navbar({ onOpenContact }) {
             />
           </div>
           <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)', fontWeight: '800', letterSpacing: '0.12em', color: '#ffffff' }}>
-              M.K.M.S. BUILDERS
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(0.95rem, 2.2vw, 1.05rem)', fontWeight: '800', letterSpacing: '0.04em', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ color: 'var(--gold-bright)' }}>MKMS</span>
+              <span>Builders</span>
             </div>
-            <div className="editorial-mono" style={{ color: 'var(--gold-primary)', fontSize: '0.62rem' }}>
+            <div className="editorial-mono" style={{ color: 'var(--gold-primary)', fontSize: '0.6rem', letterSpacing: '0.14em' }}>
               CIVIL CONTRACTORS • CHENNAI
             </div>
           </div>

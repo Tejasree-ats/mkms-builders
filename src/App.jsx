@@ -33,6 +33,7 @@ import ServicesSection from './components/ServicesSection';
 import ProjectModal from './components/ProjectModal';
 import ConsultationSection from './components/ConsultationSection';
 import MobileQuickDock from './components/MobileQuickDock';
+import AnimatedBrandTitle from './components/AnimatedBrandTitle';
 import { PROJECTS, ENGINEERING_PHASES, COMPANY_PROFILE, BUSINESS_SERVICES } from './data/projects';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -253,67 +254,74 @@ export default function App() {
                 left: 'clamp(16px, 4vw, 64px)',
                 right: 'clamp(16px, 4vw, 64px)',
                 transform: 'translateY(-50%)',
-                maxWidth: '840px',
+                maxWidth: '680px',
                 zIndex: 10,
                 pointerEvents: heroPinProgress > 0.35 ? 'none' : 'auto'
               }}
             >
+              {/* Eyebrow Credentials Badge */}
               <div 
                 className="hero-entry-item"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '10px',
-                  marginBottom: '16px',
+                  marginBottom: '14px',
                   flexWrap: 'wrap'
                 }}
               >
                 <div className="blueprint-tag">
                   <span className="status-beacon" />
-                  <span>40+ YEARS OPERATIONAL EXCELLENCE • EST. 1980s</span>
+                  <span>EST. 1980s • PWD & CPWD EMPANELLED CONTRACTORS</span>
                 </div>
-                <span className="editorial-mono" style={{ color: 'var(--text-dim)' }}>
-                  PWD & CPWD EMPANELLED
+                <span className="editorial-mono" style={{ color: 'var(--gold-primary)', fontSize: '0.66rem' }}>
+                  IS 456 & IS 800 STANDARDS
                 </span>
               </div>
 
+              {/* REFINED ANIMATED BRAND TITLE */}
+              <div className="hero-entry-item" style={{ marginBottom: '6px' }}>
+                <AnimatedBrandTitle />
+              </div>
+
+              {/* Proportioned Architectural Main Headline */}
               <h1 
                 className="hero-entry-item"
                 style={{
-                  fontSize: 'clamp(2.4rem, 6.2vw, 5.4rem)',
-                  lineHeight: '1.02',
-                  marginBottom: '18px',
-                  fontWeight: '800'
+                  fontSize: 'clamp(1.4rem, 2.5vw, 2.15rem)',
+                  lineHeight: '1.24',
+                  marginBottom: '14px',
+                  fontWeight: '700',
+                  color: '#ffffff',
+                  letterSpacing: '-0.02em'
                 }}
               >
-                <div>MASTER CIVIL CONTRACTING &</div>
-                <div className="text-gold-gradient">BUILDING SERVICES</div>
-                <div style={{ fontSize: 'clamp(1.4rem, 3.4vw, 3.0rem)', color: 'var(--text-muted)', fontWeight: '600' }}>
-                  CHENNAI & TAMIL NADU
-                </div>
+                Master Civil Engineering & <span className="text-gold-gradient">Turnkey Construction</span>
               </h1>
 
+              {/* Concise, Professional Description */}
               <p 
                 className="hero-entry-item"
                 style={{
-                  fontSize: 'clamp(0.95rem, 1.6vw, 1.2rem)',
+                  fontSize: 'clamp(0.92rem, 1.4vw, 1.05rem)',
                   color: 'var(--text-bright)',
                   lineHeight: '1.65',
-                  maxWidth: '640px',
-                  marginBottom: '26px',
-                  textShadow: '0 2px 14px rgba(0,0,0,0.9)'
+                  maxWidth: '580px',
+                  marginBottom: '24px',
+                  textShadow: '0 2px 12px rgba(0,0,0,0.85)'
                 }}
               >
                 Civil Engineering Contractors, Real Estate Builders, Developers & Building Consultants. 
-                Led by <strong>Mr. Reyaj (Proprietor)</strong> & <strong>Er. A. Shajahan Sait (Chartered Engineer)</strong>.
+                Guided directly by <strong>Er. A. Shajahan Sait (Chartered Engineer)</strong> and <strong>Mr. Reyaj (Proprietor)</strong> with over 50 delivered developments across Tamil Nadu.
               </p>
 
+              {/* Clean Action Buttons */}
               <div className="hero-entry-item" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
                 <button
                   onClick={() => handleOpenContactWithProject('')}
                   className="btn-gold"
                 >
-                  <span>REQUEST QUOTATION / TENDER BID</span>
+                  <span>REQUEST TENDER QUOTATION</span>
                   <ChevronRight size={15} />
                 </button>
 
@@ -321,30 +329,31 @@ export default function App() {
                   href="#services"
                   className="btn-outline"
                 >
-                  <Briefcase size={15} />
+                  <Briefcase size={14} />
                   <span>SERVICES DIRECTORY</span>
                 </a>
               </div>
 
+              {/* Geodetic Vitals Stamp */}
               <div 
                 className="hero-entry-item"
                 style={{
-                  marginTop: '28px',
+                  marginTop: '26px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '16px',
+                  gap: '14px',
                   flexWrap: 'wrap',
                   fontFamily: 'var(--font-mono)',
-                  fontSize: '0.7rem',
+                  fontSize: '0.68rem',
                   color: 'var(--text-dim)',
-                  letterSpacing: '0.1em'
+                  letterSpacing: '0.08em'
                 }}
               >
                 <span>CHAMIERS ROAD, NANDANAM</span>
                 <span>•</span>
                 <span>LANDLINE: +91 44 2435 2904</span>
                 <span>•</span>
-                <span>REGISTERED PARTNERSHIP FIRM</span>
+                <span>PARTNERSHIP FIRM</span>
               </div>
             </div>
 
@@ -357,7 +366,7 @@ export default function App() {
                 left: 'clamp(16px, 4vw, 64px)',
                 right: 'clamp(16px, 4vw, 64px)',
                 transform: 'translateY(-50%)',
-                maxWidth: '820px',
+                maxWidth: '680px',
                 zIndex: 12,
                 opacity: 0,
                 pointerEvents: 'none'
@@ -368,7 +377,7 @@ export default function App() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '10px',
-                  marginBottom: '14px',
+                  marginBottom: '12px',
                   flexWrap: 'wrap'
                 }}
               >
@@ -390,30 +399,30 @@ export default function App() {
 
               <h2
                 style={{
-                  fontSize: 'clamp(2.0rem, 4.8vw, 4.0rem)',
-                  lineHeight: '1.06',
-                  marginBottom: '16px',
+                  fontSize: 'clamp(1.65rem, 3.2vw, 2.6rem)',
+                  lineHeight: '1.2',
+                  marginBottom: '14px',
                   fontWeight: '800'
                 }}
               >
-                <div className="text-gold-gradient">50+ MONUMENTAL WORKS</div>
-                <div style={{ color: '#ffffff' }}>ACROSS GOVERNMENT, INDUSTRY & HOUSING</div>
+                <div className="text-gold-gradient">50+ Monumental Contracts Delivered</div>
+                <div style={{ color: '#ffffff', fontSize: '0.85em', fontWeight: '600', marginTop: '4px' }}>Across Government, Industry & Housing</div>
               </h2>
 
               <p 
                 style={{
-                  fontSize: 'clamp(0.92rem, 1.5vw, 1.05rem)',
+                  fontSize: 'clamp(0.88rem, 1.35vw, 1.0rem)',
                   color: 'var(--text-bright)',
                   lineHeight: '1.65',
-                  maxWidth: '640px',
-                  marginBottom: '22px'
+                  maxWidth: '580px',
+                  marginBottom: '20px'
                 }}
               >
                 From major institutional campuses like <strong>Utility Public School (Kotturpuram)</strong> to large industrial complexes like <strong>Dharani Sugars Limited</strong>, wind turbine foundations, and Southern Railway works.
               </p>
 
               {/* Verified Project Chips */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '10px', marginBottom: '22px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '10px', marginBottom: '20px' }}>
                 <div 
                   className="editorial-panel" 
                   style={{ 
