@@ -18,16 +18,32 @@ import {
   Compass,
   ArrowUpRight,
   Maximize2,
-  FileText
+  FileText,
+  Briefcase,
+  PhoneCall,
+  Clock,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 import ArchitecturalCanvas from './components/ArchitecturalCanvas';
 import Navbar from './components/Navbar';
+import ServicesSection from './components/ServicesSection';
 import ProjectModal from './components/ProjectModal';
 import ConsultationSection from './components/ConsultationSection';
-import { PROJECTS, ENGINEERING_PHASES, COMPANY_PROFILE } from './data/projects';
+import MobileQuickDock from './components/MobileQuickDock';
+import { PROJECTS, ENGINEERING_PHASES, COMPANY_PROFILE, BUSINESS_SERVICES } from './data/projects';
 
 gsap.registerPlugin(ScrollTrigger);
+
+const PORTFOLIO_FILTERS = [
+  { id: 'all', label: 'All Works' },
+  { id: 'Recently Completed', label: 'Recently Completed' },
+  { id: 'Under Progress', label: 'Under Progress' },
+  { id: 'Housing', label: 'Housing Projects' },
+  { id: 'Wind & Utilities', label: 'Wind & Utilities' }
+];
 
 export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -35,13 +51,17 @@ export default function App() {
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState(null);
   const [consultationPrefill, setConsultationPrefill] = useState('');
+  
+  // Interactive Filter & Mobile Accordion State
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [mobileProjectDrawerId, setMobileProjectDrawerId] = useState(null);
 
   const heroContainerRef = useRef(null);
   const heroViewportRef = useRef(null);
   const initialContentRef = useRef(null);
   const transformedContentRef = useRef(null);
 
-  // Global scroll progress tracker
+  // Global scroll tracker
   useEffect(() => {
     const handleScroll = () => {
       const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -55,20 +75,18 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // GSAP PINNED HERO TIMELINE & REDUCED MOTION AUDIT
+  // GSAP PINNED HERO TIMELINE
   useEffect(() => {
     const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isMobile = window.innerWidth < 768;
 
     const ctx = gsap.context(() => {
       if (isReducedMotion) {
-        // If reduced motion is preferred: keep elements visible without heavy scrub or pinning
         gsap.set(initialContentRef.current, { opacity: 1, y: 0 });
         gsap.set(transformedContentRef.current, { opacity: 1, y: 0, position: 'relative', top: 'auto', transform: 'none' });
         return;
       }
 
-      // 1. Initial Page Load Stagger
       gsap.from('.hero-entry-item', {
         y: 30,
         opacity: 0,
@@ -78,7 +96,6 @@ export default function App() {
         delay: 0.1
       });
 
-      // 2. PINNED HERO TRANSFORMATION TIMELINE (Adaptive scroll track on mobile)
       const pinEndDistance = isMobile ? '+=100%' : '+=140%';
 
       const heroTL = gsap.timeline({
@@ -87,7 +104,7 @@ export default function App() {
           start: 'top top',
           end: pinEndDistance,
           pin: heroViewportRef.current,
-          scrub: 0.8, // Snappier and lighter scrub for touch
+          scrub: 0.8,
           anticipatePin: 1,
           onUpdate: (self) => {
             setHeroPinProgress(self.progress);
@@ -95,7 +112,6 @@ export default function App() {
         }
       });
 
-      // Phase A: Initial headline glides upward and dissolves
       heroTL.to(initialContentRef.current, {
         y: -70,
         opacity: 0,
@@ -106,7 +122,6 @@ export default function App() {
         pointerEvents: 'none'
       }, 0);
 
-      // Phase B: Transformed Headline & Proof Matrix ascends smoothly from below
       heroTL.fromTo(transformedContentRef.current,
         {
           y: 70,
@@ -127,38 +142,22 @@ export default function App() {
         0.28
       );
 
-      // Phase C: Progress indicator bar sync
       heroTL.to('.hero-scroll-progress-fill', {
         scaleX: 1,
         ease: 'none',
         duration: 1.0
       }, 0);
 
-      // Section 2 Editorial Matrix Stagger
-      gsap.from('.matrix-cell', {
+      gsap.from('.trust-card', {
         scrollTrigger: {
-          trigger: '#mastery',
-          start: 'top 80%',
+          trigger: '#trust-bar',
+          start: 'top 85%',
           toggleActions: 'play none none reverse'
         },
-        y: 35,
+        y: 25,
         opacity: 0,
-        stagger: 0.12,
-        duration: 0.9,
-        ease: 'power3.out'
-      });
-
-      // Section 3 Architectural Folio Reveals
-      gsap.from('.folio-spread', {
-        scrollTrigger: {
-          trigger: '#portfolio',
-          start: 'top 75%',
-          toggleActions: 'play none none reverse'
-        },
-        y: 45,
-        opacity: 0,
-        stagger: 0.16,
-        duration: 1.0,
+        stagger: 0.1,
+        duration: 0.8,
         ease: 'power3.out'
       });
     });
@@ -172,23 +171,25 @@ export default function App() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Filter projects dynamically
+  const filteredProjects = PROJECTS.filter((proj) => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'Recently Completed') return proj.tag === 'Recently Completed';
+    if (activeFilter === 'Under Progress') return proj.tag === 'Under Progress';
+    if (activeFilter === 'Housing') return proj.category === 'Housing';
+    if (activeFilter === 'Wind & Utilities') return proj.category === 'Wind & Utilities';
+    return true;
+  });
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh', backgroundColor: 'var(--bg-deep)', maxWidth: '100vw', overflowX: 'hidden' }}>
-      {/* Film Grain & Hairline Drafting Guides */}
+      {/* Background Ambience */}
       <div className="film-grain" />
-      <div className="architectural-drafting-lines">
-        <div className="drafting-line" />
-        <div className="drafting-line" />
-        <div className="drafting-line" />
-        <div className="drafting-line" />
-      </div>
-
-      {/* Atmospheric Ambient Lighting */}
       <div className="ambient-glow-top" />
       <div className="ambient-glow-accent" style={{ top: '35%', right: '-100px' }} />
       <div className="ambient-glow-accent" style={{ top: '70%', left: '-100px' }} />
 
-      {/* FIXED 3D WEBGL ARCHITECTURAL CANVAS */}
+      {/* FIXED 3D CANVAS */}
       <div
         style={{
           position: 'fixed',
@@ -197,7 +198,7 @@ export default function App() {
           width: '100vw',
           height: '100vh',
           zIndex: 1,
-          pointerEvents: 'none' // Zero interference with vertical touch scrolling!
+          pointerEvents: 'none'
         }}
       >
         <ArchitecturalCanvas 
@@ -210,11 +211,11 @@ export default function App() {
       {/* Header Navigation */}
       <Navbar onOpenContact={() => handleOpenContactWithProject('')} />
 
-      {/* MAIN ART-DIRECTED EDITORIAL STACK */}
-      <main style={{ position: 'relative', zIndex: 5, maxWidth: '100vw', overflowX: 'hidden' }}>
+      {/* MAIN BUSINESS CONTENT STACK */}
+      <main style={{ position: 'relative', zIndex: 5, maxWidth: '100vw', overflowX: 'hidden', paddingBottom: '70px' }}>
 
         {/* ===================================================================
-            SECTION 1: PINNED HERO TRANSFORMATION
+            SECTION 1: PINNED HERO SCROLL SEQUENCE
             =================================================================== */}
         <div 
           id="hero-scroll-container"
@@ -223,10 +224,9 @@ export default function App() {
             position: 'relative',
             width: '100%',
             maxWidth: '100vw',
-            minHeight: '200vh' // Calibrated distance for mobile & desktop
+            minHeight: '200vh'
           }}
         >
-          {/* PINNED VIEWPORT */}
           <div
             id="hero-pin-viewport"
             ref={heroViewportRef}
@@ -235,7 +235,7 @@ export default function App() {
               width: '100%',
               maxWidth: '100vw',
               minHeight: '100vh',
-              height: '100dvh', // Modern dynamic viewport height for mobile Safari/Chrome
+              height: '100dvh',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
@@ -270,14 +270,13 @@ export default function App() {
               >
                 <div className="blueprint-tag">
                   <span className="status-beacon" />
-                  <span>REG. CIVIL CONTRACTORS • EST. 1989</span>
+                  <span>40+ YEARS OPERATIONAL EXCELLENCE • EST. 1980s</span>
                 </div>
                 <span className="editorial-mono" style={{ color: 'var(--text-dim)' }}>
-                  FOLIO 01
+                  PWD & CPWD EMPANELLED
                 </span>
               </div>
 
-              {/* Responsive Monolith Headline */}
               <h1 
                 className="hero-entry-item"
                 style={{
@@ -287,14 +286,13 @@ export default function App() {
                   fontWeight: '800'
                 }}
               >
-                <div>SCULPTING THE</div>
-                <div className="text-gold-gradient">CHENNAI SKYLINE</div>
+                <div>MASTER CIVIL CONTRACTING &</div>
+                <div className="text-gold-gradient">BUILDING SERVICES</div>
                 <div style={{ fontSize: 'clamp(1.4rem, 3.4vw, 3.0rem)', color: 'var(--text-muted)', fontWeight: '600' }}>
-                  FOR GENERATIONS.
+                  CHENNAI & TAMIL NADU
                 </div>
               </h1>
 
-              {/* Subtitle */}
               <p 
                 className="hero-entry-item"
                 style={{
@@ -306,30 +304,28 @@ export default function App() {
                   textShadow: '0 2px 14px rgba(0,0,0,0.9)'
                 }}
               >
-                Real Estate Builders, Developers, Civil Contractors & Building Consultants. 
-                Led by <strong>Reyaj (Proprietor)</strong> & <strong>Er. A. Shajahan Sait</strong> (Chartered Civil Engineer).
+                Civil Engineering Contractors, Real Estate Builders, Developers & Building Consultants. 
+                Led by <strong>Mr. Reyaj (Proprietor)</strong> & <strong>Er. A. Shajahan Sait (Chartered Engineer)</strong>.
               </p>
 
-              {/* Action Buttons (Touch Friendly) */}
               <div className="hero-entry-item" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
                 <button
                   onClick={() => handleOpenContactWithProject('')}
                   className="btn-gold"
                 >
-                  <span>COMMISSION A PROJECT</span>
+                  <span>REQUEST QUOTATION / TENDER BID</span>
                   <ChevronRight size={15} />
                 </button>
 
                 <a
-                  href="#portfolio"
+                  href="#services"
                   className="btn-outline"
                 >
-                  <Eye size={15} />
-                  <span>50+ WORKS</span>
+                  <Briefcase size={15} />
+                  <span>SERVICES DIRECTORY</span>
                 </a>
               </div>
 
-              {/* Geodetic Coordinates */}
               <div 
                 className="hero-entry-item"
                 style={{
@@ -344,11 +340,11 @@ export default function App() {
                   letterSpacing: '0.1em'
                 }}
               >
-                <span>LAT: 13.028° N</span>
+                <span>CHAMIERS ROAD, NANDANAM</span>
                 <span>•</span>
-                <span>LONG: 80.244° E</span>
+                <span>LANDLINE: +91 44 2435 2904</span>
                 <span>•</span>
-                <span>CHAMIERS ROAD • NANDANAM</span>
+                <span>REGISTERED PARTNERSHIP FIRM</span>
               </div>
             </div>
 
@@ -361,7 +357,7 @@ export default function App() {
                 left: 'clamp(16px, 4vw, 64px)',
                 right: 'clamp(16px, 4vw, 64px)',
                 transform: 'translateY(-50%)',
-                maxWidth: '800px',
+                maxWidth: '820px',
                 zIndex: 12,
                 opacity: 0,
                 pointerEvents: 'none'
@@ -378,11 +374,18 @@ export default function App() {
               >
                 <div className="blueprint-tag" style={{ background: 'rgba(226, 177, 112, 0.12)', borderColor: 'var(--gold-primary)' }}>
                   <Award size={13} />
-                  <span>TRACK RECORD • 50+ EXECUTED CONTRACTS</span>
+                  <span>VERIFIED TRACK RECORD • 50+ EXECUTED CONTRACTS</span>
                 </div>
-                <span className="editorial-mono" style={{ color: 'var(--gold-muted)' }}>
-                  FOLIO 02
-                </span>
+                <a 
+                  href={COMPANY_PROFILE.indiaMartUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="editorial-mono" 
+                  style={{ color: 'var(--gold-primary)', display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+                >
+                  <span>INDIAMART PROFILE</span>
+                  <ExternalLink size={11} />
+                </a>
               </div>
 
               <h2
@@ -394,7 +397,7 @@ export default function App() {
                 }}
               >
                 <div className="text-gold-gradient">50+ MONUMENTAL WORKS</div>
-                <div style={{ color: '#ffffff' }}>CONSTRUCTED ACROSS TAMIL NADU</div>
+                <div style={{ color: '#ffffff' }}>ACROSS GOVERNMENT, INDUSTRY & HOUSING</div>
               </h2>
 
               <p 
@@ -402,15 +405,14 @@ export default function App() {
                   fontSize: 'clamp(0.92rem, 1.5vw, 1.05rem)',
                   color: 'var(--text-bright)',
                   lineHeight: '1.65',
-                  maxWidth: '620px',
+                  maxWidth: '640px',
                   marginBottom: '22px'
                 }}
               >
-                Full building erection, structural framing (concrete, steel, light gauge steel), 
-                and turnkey finishing for prominent institutional campuses, corporate townships, and heavy utilities.
+                From major institutional campuses like <strong>Utility Public School (Kotturpuram)</strong> to large industrial complexes like <strong>Dharani Sugars Limited</strong>, wind turbine foundations, and Southern Railway works.
               </p>
 
-              {/* Verified Project Chips (Stacked adaptively on mobile) */}
+              {/* Verified Project Chips */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '10px', marginBottom: '22px' }}>
                 <div 
                   className="editorial-panel" 
@@ -428,7 +430,7 @@ export default function App() {
                       Utility Public School
                     </div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      Kotturpuram, Chennai
+                      Kotturpuram, Chennai (Completed)
                     </div>
                   </div>
                 </div>
@@ -446,7 +448,7 @@ export default function App() {
                   <Factory size={20} color="#e2b170" />
                   <div>
                     <div style={{ fontSize: '0.86rem', fontWeight: '700', color: '#ffffff' }}>
-                      Dharani Sugars Complex
+                      Dharani Sugars Limited
                     </div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                       Admin & Quarters, Kallakurichi
@@ -461,17 +463,20 @@ export default function App() {
                   href="#portfolio"
                   className="btn-gold"
                 >
-                  <span>INSPECT COMPLETED PORTFOLIO</span>
+                  <span>BROWSE COMPLETED PORTFOLIO</span>
                   <ChevronRight size={14} />
                 </a>
 
-                <div className="editorial-mono" style={{ color: 'var(--gold-primary)', padding: '4px 8px' }}>
-                  PROPRIETOR: REYAJ • ER. A. SHAJAHAN SAIT
-                </div>
+                <a
+                  href="#services"
+                  className="btn-outline"
+                >
+                  <span>ALL 6 SERVICE VERTICALS</span>
+                </a>
               </div>
             </div>
 
-            {/* SCROLL TRANSFORMATION PROGRESS BAR */}
+            {/* PROGRESS BAR */}
             <div
               style={{
                 position: 'absolute',
@@ -488,7 +493,7 @@ export default function App() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, maxWidth: '380px' }}>
                 <span className="editorial-mono" style={{ color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
-                  TRANSFORM
+                  OVERVIEW
                 </span>
                 <div style={{ flex: 1, height: '2px', background: 'rgba(255, 255, 255, 0.1)', overflow: 'hidden' }}>
                   <div
@@ -519,11 +524,11 @@ export default function App() {
                   pointerEvents: 'auto'
                 }}
                 onClick={() => {
-                  const el = document.getElementById('mastery');
+                  const el = document.getElementById('trust-bar');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-                <span>CIVIL MASTERY</span>
+                <span>COMPANY VITALS</span>
                 <ArrowDown size={12} style={{ animation: 'bounce 2s infinite' }} />
               </div>
             </div>
@@ -531,116 +536,59 @@ export default function App() {
         </div>
 
         {/* ===================================================================
-            SECTION 2: CIVIL MASTERY (CODEX MATRIX)
+            SECTION 2: CORPORATE TRUST & CREDENTIALS BAR (BUSINESS ARCHITECTURE)
             =================================================================== */}
-        <section
-          id="mastery"
+        <section 
+          id="trust-bar"
           style={{
             position: 'relative',
             zIndex: 10,
-            padding: 'clamp(4rem, 8vw, 8rem) clamp(16px, 4vw, 64px)',
+            padding: '40px clamp(16px, 4vw, 64px)',
             maxWidth: 'var(--container-max)',
             margin: '0 auto',
-            overflowX: 'hidden'
+            borderBottom: '1px solid var(--border-hairline)'
           }}
         >
-          {/* Section Header */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '32px', alignItems: 'end', marginBottom: '48px', borderBottom: '1px solid var(--border-hairline)', paddingBottom: '28px' }}>
-            <div>
-              <div className="blueprint-tag" style={{ marginBottom: '14px' }}>
-                <Layers size={13} />
-                <span>SECTION 02 • CAPABILITIES</span>
-              </div>
-              <h2 style={{ fontSize: 'clamp(2.0rem, 4.5vw, 3.8rem)', color: '#ffffff', letterSpacing: '-0.02em', lineHeight: '1.08' }}>
-                Engineered by <br />
-                <span className="text-gold-gradient">M.K.M.S. Builders Chennai</span>
-              </h2>
-            </div>
-            <div>
-              <p style={{ color: 'var(--text-bright)', fontSize: '1.02rem', lineHeight: '1.68', marginBottom: '12px' }}>
-                35+ years of verified contractor excellence. Comprehensive execution from geotechnical foundation boring to full framing (concrete, structural steel, and light gauge steel) and municipal utilities.
-              </p>
-              <div className="editorial-mono" style={{ color: 'var(--text-dim)', fontSize: '0.68rem' }}>
-                HEADQUARTERS: CHAMIERS ROAD, NANDANAM, CHENNAI – 600035
-              </div>
-            </div>
-          </div>
-
-          {/* Architectural Codex Matrix */}
-          <div
+          <div 
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
-              gap: '1px',
-              background: 'var(--border-hairline)',
-              border: '1px solid var(--border-hairline)',
-              maxWidth: '100%'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+              gap: '16px'
             }}
           >
-            <div className="matrix-cell" style={{ background: 'var(--bg-surface)', padding: 'clamp(24px, 4vw, 36px)', position: 'relative' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <span className="editorial-mono" style={{ color: 'var(--gold-muted)' }}>CODEX / 01</span>
-              </div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.8rem, 5vw, 3.4rem)', fontWeight: '800', color: 'var(--gold-primary)', lineHeight: '1', marginBottom: '10px' }}>
-                50+
-              </div>
-              <div style={{ color: '#ffffff', fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px' }}>
-                Executed Developments
-              </div>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.86rem', lineHeight: '1.65' }}>
-                Delivered across residential apartment complexes, multi-acre educational campuses, and corporate administrative quarters.
-              </div>
+            <div className="editorial-panel trust-card" style={{ padding: '20px 22px' }}>
+              <div className="editorial-mono" style={{ color: 'var(--gold-muted)', marginBottom: '6px' }}>ESTABLISHED</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#ffffff', marginBottom: '4px' }}>40+ Years</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Continuous operations in civil contracting and real estate development since the 1980s.</div>
             </div>
 
-            <div className="matrix-cell" style={{ background: 'var(--bg-surface)', padding: 'clamp(24px, 4vw, 36px)', position: 'relative' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <span className="editorial-mono" style={{ color: 'var(--gold-muted)' }}>CODEX / 02</span>
-              </div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 3.5vw, 2.2rem)', fontWeight: '800', color: 'var(--gold-primary)', lineHeight: '1.5', marginBottom: '10px' }}>
-                FRAMING
-              </div>
-              <div style={{ color: '#ffffff', fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px' }}>
-                Concrete, Steel & LGS
-              </div>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.86rem', lineHeight: '1.65' }}>
-                Heavy reinforced concrete columns, high-tensile industrial steel framing, and modern light-gauge steel for accelerated delivery.
-              </div>
+            <div className="editorial-panel trust-card" style={{ padding: '20px 22px' }}>
+              <div className="editorial-mono" style={{ color: 'var(--gold-muted)', marginBottom: '6px' }}>GOVT. EMPANELMENT</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: '800', color: 'var(--gold-primary)', marginBottom: '4px' }}>PWD & CPWD</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Empanelled with Public Works Dept, Central PWD, and Southern Railway Civil Division.</div>
             </div>
 
-            <div className="matrix-cell" style={{ background: 'var(--bg-surface)', padding: 'clamp(24px, 4vw, 36px)', position: 'relative' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <span className="editorial-mono" style={{ color: 'var(--gold-muted)' }}>CODEX / 03</span>
-              </div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 3.5vw, 2.2rem)', fontWeight: '800', color: 'var(--gold-primary)', lineHeight: '1.5', marginBottom: '10px' }}>
-                UTILITIES
-              </div>
-              <div style={{ color: '#ffffff', fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px' }}>
-                Wind & Water Engineering
-              </div>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.86rem', lineHeight: '1.65' }}>
-                Dynamic wind turbine foundation pedestals, municipal water distribution systems, and industrial waterproofing barriers.
-              </div>
+            <div className="editorial-panel trust-card" style={{ padding: '20px 22px' }}>
+              <div className="editorial-mono" style={{ color: 'var(--gold-muted)', marginBottom: '6px' }}>TECHNICAL LEADERSHIP</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff', marginBottom: '4px' }}>Er. A. Shajahan Sait</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Managing Partner, Chartered Civil Engineer & Fellow Member of Builders Association of India (BAI).</div>
             </div>
 
-            <div className="matrix-cell" style={{ background: 'var(--bg-surface)', padding: 'clamp(24px, 4vw, 36px)', position: 'relative' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <span className="editorial-mono" style={{ color: 'var(--gold-muted)' }}>CODEX / 04</span>
-              </div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.8rem, 3.5vw, 2.2rem)', fontWeight: '800', color: 'var(--gold-primary)', lineHeight: '1.5', marginBottom: '10px' }}>
-                MANAGEMENT
-              </div>
-              <div style={{ color: '#ffffff', fontWeight: '700', fontSize: '1.05rem', marginBottom: '8px' }}>
-                Reyaj & Er. Shajahan Sait
-              </div>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.86rem', lineHeight: '1.65' }}>
-                Proprietary oversight and chartered civil engineering sign-off ensuring compliance with Indian Standard civil codes.
-              </div>
+            <div className="editorial-panel trust-card" style={{ padding: '20px 22px' }}>
+              <div className="editorial-mono" style={{ color: 'var(--gold-muted)', marginBottom: '6px' }}>PROJECT SCALE</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#ffffff', marginBottom: '4px' }}>50+ Completed</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Executed across residential housing, commercial spaces, schools, industrial townships & wind works.</div>
             </div>
           </div>
         </section>
 
         {/* ===================================================================
-            SECTION 3: ARCHITECTURAL PORTFOLIO SPREADS
+            SECTION 3: CORE BUSINESS SERVICES (FROM INDIAMART CATALOG)
+            =================================================================== */}
+        <ServicesSection onSelectServiceForQuote={(serviceTitle) => handleOpenContactWithProject(serviceTitle)} />
+
+        {/* ===================================================================
+            SECTION 4: MONUMENTAL PORTFOLIO (INTERACTIVE WITH INDIAMART DATA)
             =================================================================== */}
         <section
           id="portfolio"
@@ -653,216 +601,210 @@ export default function App() {
             overflowX: 'hidden'
           }}
         >
-          {/* Section Header */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '44px', gap: '20px' }}>
+          {/* Header & IndiaMART Link */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '36px', gap: '20px' }}>
             <div>
               <div className="blueprint-tag" style={{ marginBottom: '12px' }}>
                 <Award size={13} />
-                <span>SECTION 03 • MONUMENTAL PORTFOLIO</span>
+                <span>PROJECT CATALOG • INDIAMART VERIFIED</span>
               </div>
               <h2 style={{ fontSize: 'clamp(2.0rem, 4.5vw, 3.8rem)', color: '#ffffff', letterSpacing: '-0.02em' }}>
-                Selected Projects & <span className="text-gold-gradient">Key Commissions</span>
+                Major Projects & <span className="text-gold-gradient">Monumental Works</span>
               </h2>
             </div>
-            <div className="editorial-mono" style={{ color: 'var(--text-dim)', maxWidth: '340px' }}>
-              TAP ANY MONOGRAPH ENTRY TO VIEW FULL TECHNICAL DOSSIER.
-            </div>
-          </div>
-
-          {/* SPREAD 1: HERO FEATURE — UTILITY PUBLIC SCHOOL (KOTTURPURAM) */}
-          <div 
-            className="editorial-panel folio-spread"
-            onClick={() => setSelectedProject(PROJECTS[0])}
-            style={{
-              padding: 'clamp(20px, 3.5vw, 40px)',
-              marginBottom: '32px',
-              cursor: 'pointer',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-              gap: '28px',
-              alignItems: 'center'
-            }}
-          >
-            {/* Visual */}
-            <div style={{ position: 'relative', height: 'clamp(240px, 35vh, 420px)', overflow: 'hidden', borderRadius: '2px', width: '100%' }}>
-              <img 
-                src={PROJECTS[0].image} 
-                alt={PROJECTS[0].title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10, 12, 16, 0.85) 0%, transparent 60%)' }} />
-              
-              <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                <span className="blueprint-tag">MKMS / PROJ-01</span>
-                <span className="blueprint-tag">▲ EL +24.80M</span>
-              </div>
-
-              <div style={{ position: 'absolute', bottom: '12px', right: '12px' }}>
-                <span className="blueprint-tag" style={{ background: 'rgba(5, 6, 8, 0.9)', color: '#ffffff' }}>
-                  <Maximize2 size={12} color="#e2b170" /> EXPAND
-                </span>
-              </div>
-            </div>
-
-            {/* Typography */}
-            <div>
-              <div className="editorial-mono" style={{ color: 'var(--gold-primary)', marginBottom: '10px' }}>
-                FOLIO 01 / 04 • {PROJECTS[0].category.toUpperCase()}
-              </div>
-              <h3 style={{ fontSize: 'clamp(1.6rem, 3.0vw, 2.4rem)', color: '#ffffff', marginBottom: '14px', lineHeight: '1.15' }}>
-                {PROJECTS[0].title}
-              </h3>
-              <p style={{ color: 'var(--text-bright)', fontSize: '0.98rem', lineHeight: '1.7', marginBottom: '22px' }}>
-                {PROJECTS[0].description}
-              </p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px', marginBottom: '24px', borderTop: '1px solid var(--border-hairline)', paddingTop: '16px' }}>
-                <div>
-                  <div className="editorial-mono" style={{ color: 'var(--text-dim)', marginBottom: '2px' }}>LOCATION</div>
-                  <div style={{ color: '#ffffff', fontWeight: '600', fontSize: '0.88rem' }}>Kotturpuram, Chennai</div>
-                </div>
-                <div>
-                  <div className="editorial-mono" style={{ color: 'var(--text-dim)', marginBottom: '2px' }}>STRUCTURAL SYSTEM</div>
-                  <div style={{ color: '#ffffff', fontWeight: '600', fontSize: '0.88rem' }}>RCC Column-Beam</div>
-                </div>
-                <div>
-                  <div className="editorial-mono" style={{ color: 'var(--text-dim)', marginBottom: '2px' }}>CAMPUS AREA</div>
-                  <div style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '0.92rem' }}>85,000 SQ. FT.</div>
-                </div>
-                <div>
-                  <div className="editorial-mono" style={{ color: 'var(--text-dim)', marginBottom: '2px' }}>STATUS</div>
-                  <div style={{ color: '#ffffff', fontWeight: '600', fontSize: '0.88rem' }}>Turnkey Handover</div>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--gold-primary)', fontWeight: '700', fontSize: '0.84rem' }}>
-                <span>REVIEW COMPLETE SPECIFICATION DOSSIER</span>
-                <ChevronRight size={15} />
-              </div>
-            </div>
-          </div>
-
-          {/* SPREAD 2: DUAL COLUMNS */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px', marginBottom: '32px' }}>
-            {/* Dharani Sugars Complex */}
-            <div 
-              className="editorial-panel folio-spread"
-              onClick={() => setSelectedProject(PROJECTS[1])}
-              style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+            
+            <a
+              href={COMPANY_PROFILE.indiaMartUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline"
+              style={{ fontSize: '0.78rem', minHeight: '44px', padding: '10px 18px' }}
             >
-              <div>
-                <div style={{ position: 'relative', height: '220px', overflow: 'hidden', borderRadius: '2px', marginBottom: '18px' }}>
-                  <img 
-                    src={PROJECTS[1].image} 
-                    alt={PROJECTS[1].title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
-                    <span className="blueprint-tag">FOLIO 02 / 04</span>
-                  </div>
-                  <div style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
-                    <span className="blueprint-tag" style={{ color: '#ffffff' }}>145,000 SQ. FT.</span>
-                  </div>
-                </div>
-
-                <div className="editorial-mono" style={{ color: 'var(--gold-primary)', marginBottom: '6px' }}>
-                  {PROJECTS[1].category.toUpperCase()}
-                </div>
-                <h3 style={{ fontSize: '1.45rem', color: '#ffffff', marginBottom: '10px' }}>
-                  {PROJECTS[1].title}
-                </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: '1.65', marginBottom: '18px' }}>
-                  {PROJECTS[1].description}
-                </p>
-              </div>
-
-              <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="editorial-mono" style={{ color: 'var(--text-dim)', fontSize: '0.66rem' }}>
-                  CLIENT: DHARANI SUGARS LTD
-                </span>
-                <span style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  SPECS <ChevronRight size={13} />
-                </span>
-              </div>
-            </div>
-
-            {/* Chamiers Commercial Centre */}
-            <div 
-              className="editorial-panel folio-spread"
-              onClick={() => setSelectedProject(PROJECTS[2])}
-              style={{ padding: '24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-            >
-              <div>
-                <div style={{ position: 'relative', height: '220px', overflow: 'hidden', borderRadius: '2px', marginBottom: '18px' }}>
-                  <img 
-                    src={PROJECTS[2].image} 
-                    alt={PROJECTS[2].title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
-                    <span className="blueprint-tag">FOLIO 03 / 04</span>
-                  </div>
-                  <div style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
-                    <span className="blueprint-tag" style={{ color: '#ffffff' }}>62,000 SQ. FT.</span>
-                  </div>
-                </div>
-
-                <div className="editorial-mono" style={{ color: 'var(--gold-primary)', marginBottom: '6px' }}>
-                  {PROJECTS[2].category.toUpperCase()}
-                </div>
-                <h3 style={{ fontSize: '1.45rem', color: '#ffffff', marginBottom: '10px' }}>
-                  {PROJECTS[2].title}
-                </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', lineHeight: '1.65', marginBottom: '18px' }}>
-                  {PROJECTS[2].description}
-                </p>
-              </div>
-
-              <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="editorial-mono" style={{ color: 'var(--text-dim)', fontSize: '0.66rem' }}>
-                  CHAMIERS RD • NANDANAM
-                </span>
-                <span style={{ color: 'var(--gold-primary)', fontWeight: '700', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  SPECS <ChevronRight size={13} />
-                </span>
-              </div>
-            </div>
+              <span>VIEW FULL INDIAMART STOREFRONT</span>
+              <ExternalLink size={14} />
+            </a>
           </div>
 
-          {/* SPREAD 3: FULL WIDTH STRIP */}
+          {/* INTERACTIVE CATEGORY FILTER TABS (Mobile & Desktop) */}
           <div 
-            className="editorial-panel folio-spread"
-            onClick={() => setSelectedProject(PROJECTS[3])}
             style={{
-              padding: '24px clamp(16px, 3vw, 32px)',
-              cursor: 'pointer',
               display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
               alignItems: 'center',
-              gap: '18px'
+              gap: '8px',
+              overflowX: 'auto',
+              paddingBottom: '16px',
+              marginBottom: '36px',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '42px', height: '42px', border: '1px solid var(--gold-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(226, 177, 112, 0.08)', flexShrink: 0 }}>
-                <Layers size={18} color="#e2b170" />
-              </div>
-              <div>
-                <div className="editorial-mono" style={{ color: 'var(--gold-primary)', fontSize: '0.66rem' }}>FOLIO 04 / 04 • SPECIALIZED UTILITY ENGINEERING</div>
-                <div style={{ fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)', fontWeight: '800', color: '#ffffff' }}>
-                  Wind Engineering Foundations & Industrial Water Supply Networks
-                </div>
-              </div>
-            </div>
+            {PORTFOLIO_FILTERS.map((filter) => {
+              const isSelected = activeFilter === filter.id;
+              return (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() => setActiveFilter(filter.id)}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '2px',
+                    background: isSelected ? 'var(--gold-primary)' : 'rgba(12, 15, 22, 0.85)',
+                    border: isSelected ? '1px solid var(--gold-bright)' : '1px solid var(--border-hairline)',
+                    color: isSelected ? '#050608' : '#ffffff',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.74rem',
+                    fontWeight: isSelected ? '800' : '600',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    touchAction: 'manipulation',
+                    flexShrink: 0
+                  }}
+                >
+                  {filter.label}
+                </button>
+              );
+            })}
+          </div>
 
-            <button className="btn-outline" style={{ padding: '8px 18px', minHeight: '40px' }}>
-              PARAMETERS <ChevronRight size={14} />
-            </button>
+          {/* PROJECT CARDS SPREAD (Interactive Cards with In-Card Quick Drawers) */}
+          <div 
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
+              gap: '24px'
+            }}
+          >
+            {filteredProjects.map((project) => {
+              const isMobileDrawerOpen = mobileProjectDrawerId === project.id;
+
+              return (
+                <div
+                  key={project.id}
+                  className="editorial-panel"
+                  style={{
+                    borderRadius: '2px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    padding: '24px'
+                  }}
+                >
+                  <div>
+                    {/* Image Preview with Status Badge */}
+                    <div style={{ position: 'relative', height: '230px', overflow: 'hidden', borderRadius: '2px', marginBottom: '18px' }}>
+                      <img 
+                        src={project.image} 
+                        alt={project.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10, 12, 16, 0.9) 0%, transparent 60%)' }} />
+
+                      <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', gap: '6px' }}>
+                        <span className="blueprint-tag" style={{ background: 'rgba(5, 6, 8, 0.85)' }}>
+                          {project.tag}
+                        </span>
+                      </div>
+
+                      <div style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
+                        <span className="blueprint-tag" style={{ color: '#ffffff', background: 'rgba(5, 6, 8, 0.9)' }}>
+                          {project.area}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '8px' }}>
+                      <span className="editorial-mono" style={{ color: 'var(--gold-primary)' }}>
+                        {project.category.toUpperCase()}
+                      </span>
+                      <span style={{ fontSize: '0.74rem', color: project.status === 'Completed' ? '#4ade80' : '#e2b170', fontFamily: 'var(--font-mono)' }}>
+                        ● {project.status.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <h3 style={{ fontSize: '1.45rem', color: '#ffffff', marginBottom: '10px', lineHeight: '1.2' }}>
+                      {project.title}
+                    </h3>
+
+                    <div style={{ color: 'var(--text-dim)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)', marginBottom: '12px' }}>
+                      CLIENT: {project.client}
+                    </div>
+
+                    <p style={{ color: 'var(--text-bright)', fontSize: '0.9rem', lineHeight: '1.65', marginBottom: '18px' }}>
+                      {project.description}
+                    </p>
+
+                    {/* Quick Expandable Drawer on Mobile / Accordion view */}
+                    {isMobileDrawerOpen && (
+                      <div 
+                        style={{
+                          background: 'rgba(5, 6, 8, 0.85)',
+                          border: '1px solid var(--border-hairline)',
+                          padding: '16px',
+                          marginBottom: '18px',
+                          animation: 'fadeIn 0.2s ease'
+                        }}
+                      >
+                        <div className="editorial-mono" style={{ color: 'var(--gold-primary)', marginBottom: '10px' }}>
+                          TECHNICAL PARAMETERS:
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {project.specs.map((spec, sidx) => (
+                            <div key={sidx} style={{ fontSize: '0.78rem' }}>
+                              <span style={{ color: 'var(--text-dim)' }}>{spec.label}: </span>
+                              <span style={{ color: '#ffffff', fontWeight: '600' }}>{spec.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Bottom Controls */}
+                  <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => setMobileProjectDrawerId(isMobileDrawerOpen ? null : project.id)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--gold-primary)',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.74rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '6px 0',
+                        touchAction: 'manipulation'
+                      }}
+                    >
+                      {isMobileDrawerOpen ? (
+                        <><span>HIDE SPECS</span> <ChevronUp size={14} /></>
+                      ) : (
+                        <><span>QUICK SPECS</span> <ChevronDown size={14} /></>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => setSelectedProject(project)}
+                      className="btn-outline"
+                      style={{ padding: '8px 16px', fontSize: '0.74rem', minHeight: '38px' }}
+                    >
+                      <span>FULL DOSSIER</span>
+                      <Maximize2 size={12} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
         {/* ===================================================================
-            SECTION 4: THE CODEX (4 STAGES)
+            SECTION 5: THE ENGINEERING CODEX (4 STAGES)
             =================================================================== */}
         <section
           id="codex"
@@ -878,18 +820,16 @@ export default function App() {
           <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 44px' }}>
             <div className="blueprint-tag" style={{ marginBottom: '12px' }}>
               <SlidersHorizontal size={13} />
-              <span>SECTION 04 • THE ENGINEERING CODEX</span>
+              <span>QUALITY CONTROL & PROTOCOLS</span>
             </div>
             <h2 style={{ fontSize: 'clamp(2.0rem, 4.5vw, 3.8rem)', color: '#ffffff', letterSpacing: '-0.02em', marginBottom: '14px' }}>
               4 Stages of <span className="text-gold-gradient">Execution Rigor</span>
             </h2>
             <p style={{ color: 'var(--text-bright)', fontSize: '1.02rem', lineHeight: '1.68' }}>
-              From initial geotechnical borehole core extraction through to certified turnkey commissioning. 
-              Tap each stage to observe structural reconfigurations.
+              From initial geotechnical borehole core extraction through to certified turnkey commissioning conforming to IS 456 & IS 800 standards.
             </p>
           </div>
 
-          {/* Phase Selectors */}
           <div
             style={{
               display: 'grid',
@@ -1003,15 +943,17 @@ export default function App() {
         </section>
 
         {/* ===================================================================
-            SECTION 5: FINAL REVEAL & CONSULTATION
+            SECTION 6: ESTIMATION & FORMAL RFQ PORTAL
             =================================================================== */}
         <ConsultationSection prefilledProject={consultationPrefill} />
 
-        {/* Editorial Footer */}
+        {/* ===================================================================
+            CORPORATE COLOPHON & FOOTER WITH INDIAMART VERIFICATION
+            =================================================================== */}
         <footer
           style={{
             borderTop: '1px solid var(--border-hairline)',
-            padding: '44px clamp(16px, 4vw, 64px)',
+            padding: '48px clamp(16px, 4vw, 64px) 36px',
             maxWidth: 'var(--container-max)',
             margin: '0 auto',
             display: 'flex',
@@ -1026,17 +968,29 @@ export default function App() {
           }}
         >
           <div>
-            <div style={{ color: '#ffffff', fontWeight: '800', letterSpacing: '0.12em', fontSize: '0.92rem', marginBottom: '4px' }}>
-              M.K.M.S. BUILDERS & DEVELOPERS
+            <div style={{ color: '#ffffff', fontWeight: '800', letterSpacing: '0.12em', fontSize: '0.94rem', marginBottom: '4px' }}>
+              M.K.M.S. BUILDERS (PARTNERSHIP FIRM)
             </div>
-            <div>REAL ESTATE • CIVIL CONTRACTORS • BUILDING CONSULTANTS</div>
-            <div style={{ color: 'var(--gold-muted)', marginTop: '4px' }}>PROPRIETOR: MR. REYAJ • ER. A. SHAJAHAN SAIT</div>
+            <div>CIVIL CONTRACTORS • REAL ESTATE BUILDERS • BUILDING CONSULTANTS</div>
+            <div style={{ color: 'var(--gold-primary)', marginTop: '4px' }}>
+              LEADERSHIP: MR. REYAJ (PROPRIETOR) • ER. A. SHAJAHAN SAIT (CHARTERED ENGINEER)
+            </div>
           </div>
 
           <div style={{ textAlign: 'left' }}>
             <div>{COMPANY_PROFILE.address}</div>
-            <div style={{ color: 'var(--gold-primary)', marginTop: '4px', fontSize: '0.84rem' }}>
-              LANDLINE: {COMPANY_PROFILE.phone} • {COMPANY_PROFILE.websiteDisplay}
+            <div style={{ color: '#ffffff', marginTop: '4px' }}>
+              LANDLINE: {COMPANY_PROFILE.phone} • MOBILE: {COMPANY_PROFILE.mobile}
+            </div>
+            <div style={{ marginTop: '4px' }}>
+              <a 
+                href={COMPANY_PROFILE.indiaMartUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ color: 'var(--gold-primary)', textDecoration: 'none' }}
+              >
+                VERIFIED INDIAMART STOREFRONT ↗
+              </a>
             </div>
           </div>
         </footer>
@@ -1048,6 +1002,9 @@ export default function App() {
         onClose={() => setSelectedProject(null)}
         onSelectForConsultation={handleOpenContactWithProject}
       />
+
+      {/* Mobile Sticky Quick Action Dock (Call, Quote, IndiaMART) */}
+      <MobileQuickDock onOpenQuote={() => handleOpenContactWithProject('General Contracting / Tender Scope')} />
     </div>
   );
 }

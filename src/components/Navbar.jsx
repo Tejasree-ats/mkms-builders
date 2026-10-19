@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Compass, PhoneCall, Menu, X, Phone, Globe } from 'lucide-react';
+import { Volume2, VolumeX, Compass, PhoneCall, Menu, X, Phone, Globe, ExternalLink, Briefcase } from 'lucide-react';
 import { audioEngine } from '../utils/audioEngine';
 import { COMPANY_PROFILE } from '../data/projects';
 
@@ -35,7 +35,6 @@ export default function Navbar({ onOpenContact }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -70,8 +69,9 @@ export default function Navbar({ onOpenContact }) {
           right: 0,
           zIndex: 100,
           padding: isScrolled ? '12px clamp(16px, 4vw, 36px)' : '18px clamp(16px, 4vw, 48px)',
-          background: isScrolled ? 'rgba(5, 6, 8, 0.94)' : 'linear-gradient(to bottom, rgba(5, 6, 8, 0.85) 0%, transparent 100%)',
+          background: isScrolled ? 'rgba(5, 6, 8, 0.95)' : 'linear-gradient(to bottom, rgba(5, 6, 8, 0.9) 0%, transparent 100%)',
           backdropFilter: isScrolled ? 'blur(20px)' : 'none',
+          WebkitBackdropFilter: isScrolled ? 'blur(20px)' : 'none',
           borderBottom: isScrolled ? '1px solid var(--border-hairline)' : '1px solid transparent',
           transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
           display: 'flex',
@@ -81,7 +81,7 @@ export default function Navbar({ onOpenContact }) {
           overflowX: 'hidden'
         }}
       >
-        {/* Brand Monogram & Title */}
+        {/* Brand Monogram & Corporate Title */}
         <a 
           href="#hero" 
           onClick={(e) => { e.preventDefault(); scrollTo('hero'); }}
@@ -125,60 +125,72 @@ export default function Navbar({ onOpenContact }) {
           </div>
         </a>
 
-        {/* Desktop Navigation Links (Hidden on screens < 960px) */}
+        {/* Desktop Navigation Links */}
         <nav 
           style={{ 
             alignItems: 'center', 
-            gap: '28px' 
+            gap: '24px' 
           }} 
           className="desktop-nav"
         >
           <button 
             onClick={() => scrollTo('hero')} 
-            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
+            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.78rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
           >
-            THE MONOLITH
+            OVERVIEW
           </button>
           <button 
-            onClick={() => scrollTo('mastery')} 
-            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
+            onClick={() => scrollTo('trust-bar')} 
+            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.78rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
           >
-            CIVIL MASTERY
+            CREDENTIALS
+          </button>
+          <button 
+            onClick={() => scrollTo('services')} 
+            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.78rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
+          >
+            SERVICES
           </button>
           <button 
             onClick={() => scrollTo('portfolio')} 
-            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
+            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.78rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
           >
-            50+ WORKS
+            PROJECTS
           </button>
           <button 
             onClick={() => scrollTo('codex')} 
-            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.8rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
+            style={{ background: 'none', border: 'none', color: '#cfd4dc', fontSize: '0.78rem', fontWeight: '600', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'var(--font-mono)' }}
           >
-            CODEX
+            QA PROTOCOLS
           </button>
         </nav>
 
-        {/* Right Controls: Desktop Live Clock + Audio + Call CTA / Mobile Hamburger */}
+        {/* Right Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Desktop Chennai IST Live Badge */}
-          <div 
-            className="desktop-clock"
+          {/* IndiaMART Link on Desktop */}
+          <a
+            href={COMPANY_PROFILE.indiaMartUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="desktop-indiamart"
             style={{
+              display: 'flex',
               alignItems: 'center',
               gap: '6px',
               padding: '6px 12px',
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px solid var(--border-hairline)',
               borderRadius: '2px',
-              fontSize: '0.7rem',
+              color: 'var(--gold-primary)',
+              textDecoration: 'none',
               fontFamily: 'var(--font-mono)',
-              color: 'var(--text-muted)'
+              fontSize: '0.68rem',
+              letterSpacing: '0.08em'
             }}
           >
-            <Compass size={13} color="#e2b170" />
-            <span>CHENNAI {chennaiTime} IST</span>
-          </div>
+            <span>INDIAMART PROFILE</span>
+            <ExternalLink size={12} />
+          </a>
 
           {/* Audio Synthesizer Button */}
           <button
@@ -217,7 +229,7 @@ export default function Navbar({ onOpenContact }) {
             }}
           >
             <PhoneCall size={13} />
-            <span>COMMISSION</span>
+            <span>TENDER RFQ</span>
           </button>
 
           {/* Mobile Menu Hamburger Toggle */}
@@ -260,9 +272,9 @@ export default function Navbar({ onOpenContact }) {
             animation: 'fadeIn 0.25s ease'
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div className="editorial-mono" style={{ color: 'var(--gold-primary)', borderBottom: '1px solid var(--border-hairline)', paddingBottom: '10px' }}>
-              NAVIGATION INDEX
+              BUSINESS NAVIGATION DIRECTORY
             </div>
 
             <button
@@ -272,31 +284,48 @@ export default function Navbar({ onOpenContact }) {
                 border: 'none',
                 color: '#ffffff',
                 fontFamily: 'var(--font-display)',
-                fontSize: '1.6rem',
+                fontSize: '1.45rem',
                 fontWeight: '800',
                 textAlign: 'left',
                 cursor: 'pointer',
-                padding: '8px 0'
+                padding: '6px 0'
               }}
             >
-              01 // THE MONOLITH
+              01 // OVERVIEW & PROFILE
             </button>
 
             <button
-              onClick={() => scrollTo('mastery')}
+              onClick={() => scrollTo('trust-bar')}
               style={{
                 background: 'none',
                 border: 'none',
                 color: '#ffffff',
                 fontFamily: 'var(--font-display)',
-                fontSize: '1.6rem',
+                fontSize: '1.45rem',
                 fontWeight: '800',
                 textAlign: 'left',
                 cursor: 'pointer',
-                padding: '8px 0'
+                padding: '6px 0'
               }}
             >
-              02 // CIVIL MASTERY
+              02 // ACCREDITATIONS & TRUST
+            </button>
+
+            <button
+              onClick={() => scrollTo('services')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#ffffff',
+                fontFamily: 'var(--font-display)',
+                fontSize: '1.45rem',
+                fontWeight: '800',
+                textAlign: 'left',
+                cursor: 'pointer',
+                padding: '6px 0'
+              }}
+            >
+              03 // CORE CAPABILITIES & SERVICES
             </button>
 
             <button
@@ -306,14 +335,14 @@ export default function Navbar({ onOpenContact }) {
                 border: 'none',
                 color: '#ffffff',
                 fontFamily: 'var(--font-display)',
-                fontSize: '1.6rem',
+                fontSize: '1.45rem',
                 fontWeight: '800',
                 textAlign: 'left',
                 cursor: 'pointer',
-                padding: '8px 0'
+                padding: '6px 0'
               }}
             >
-              03 // 50+ WORKS
+              04 // MAJOR PROJECTS (INDIAMART)
             </button>
 
             <button
@@ -323,14 +352,14 @@ export default function Navbar({ onOpenContact }) {
                 border: 'none',
                 color: '#ffffff',
                 fontFamily: 'var(--font-display)',
-                fontSize: '1.6rem',
+                fontSize: '1.45rem',
                 fontWeight: '800',
                 textAlign: 'left',
                 cursor: 'pointer',
-                padding: '8px 0'
+                padding: '6px 0'
               }}
             >
-              04 // THE CODEX
+              05 // QA & CIVIL PROTOCOLS
             </button>
 
             <button
@@ -340,36 +369,36 @@ export default function Navbar({ onOpenContact }) {
               }}
               className="btn-gold"
               style={{
-                marginTop: '12px',
+                marginTop: '10px',
                 width: '100%',
-                padding: '16px',
-                fontSize: '0.92rem'
+                padding: '14px',
+                fontSize: '0.88rem'
               }}
             >
               <PhoneCall size={16} />
-              <span>COMMISSION A PROJECT</span>
+              <span>REQUEST TENDER QUOTATION</span>
             </button>
           </div>
 
           {/* Mobile Drawer Bottom Info */}
-          <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: '20px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginBottom: '8px' }}>
-              DIRECT CHENNAI HOTLINES:
+          <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: '16px' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', marginBottom: '8px' }}>
+              DIRECT CHENNAI HEADQUARTERS:
             </div>
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
               <a
                 href={`tel:${COMPANY_PROFILE.phone.replace(/[^0-9+]/g, '')}`}
                 style={{
                   color: 'var(--gold-primary)',
                   textDecoration: 'none',
-                  fontSize: '0.85rem',
+                  fontSize: '0.84rem',
                   fontFamily: 'var(--font-mono)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px'
                 }}
               >
-                <Phone size={14} /> {COMPANY_PROFILE.phone}
+                <Phone size={13} /> {COMPANY_PROFILE.phone}
               </a>
               <span style={{ color: 'var(--border-hairline)' }}>|</span>
               <a
@@ -377,31 +406,49 @@ export default function Navbar({ onOpenContact }) {
                 style={{
                   color: 'var(--gold-primary)',
                   textDecoration: 'none',
-                  fontSize: '0.85rem',
+                  fontSize: '0.84rem',
                   fontFamily: 'var(--font-mono)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px'
                 }}
               >
-                <Phone size={14} /> {COMPANY_PROFILE.mobile}
+                <Phone size={13} /> {COMPANY_PROFILE.mobile}
               </a>
             </div>
+
+            <a
+              href={COMPANY_PROFILE.indiaMartUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                color: '#ffffff',
+                textDecoration: 'none',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.76rem'
+              }}
+            >
+              <span>VIEW OFFICIAL INDIAMART CATALOG</span>
+              <ExternalLink size={13} color="#e2b170" />
+            </a>
           </div>
         </div>
       )}
 
       {/* Responsive Media Query Styles for Navbar */}
       <style>{`
-        @media (max-width: 960px) {
+        @media (max-width: 1040px) {
           .desktop-nav { display: none !important; }
-          .desktop-clock { display: none !important; }
+          .desktop-indiamart { display: none !important; }
           .desktop-cta { display: none !important; }
           .mobile-menu-toggle { display: flex !important; }
         }
-        @media (min-width: 961px) {
+        @media (min-width: 1041px) {
           .desktop-nav { display: flex !important; }
-          .desktop-clock { display: flex !important; }
+          .desktop-indiamart { display: flex !important; }
           .desktop-cta { display: inline-flex !important; }
           .mobile-menu-toggle { display: none !important; }
         }
